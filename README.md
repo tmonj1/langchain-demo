@@ -12,6 +12,9 @@ LangChainの学習に作ったサンプルプログラムです。
 
 ファイル | 説明
 :--|:--
-1_langchain.py | OpenAIのChat Completionを使ってみる
-2_langchain.py | DirectoryLoaderを使ってみる
+1_langchain.py | OpenAIのChatモデルを使ってみる (OpenAI)
+2_langchain.py | DocumentLoaderを使ってみる (DirectoryLoader)
+3_langchain.py | Splitterを使ってみる (MarkdownTextSplitter)
+4_langchain.py | OpenAIのEmbeddingモデルを使ってみる (OpenAIEmbeddings)
+5_langchain.py | Vector DBのChromaを使ってみる (Chroma, Retriever)
 
