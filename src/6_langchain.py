@@ -4,7 +4,6 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain_text_splitters import MarkdownTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
-from pydantic_settings import ForceDecode
 
 def file_filter(file_path: str) -> bool:
     return file_path.endswith(".mdx")
