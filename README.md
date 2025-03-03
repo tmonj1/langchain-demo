@@ -6,7 +6,7 @@ LangChainの学習に作ったサンプルプログラムです。
 
 * Python 3.12 で実行確認
 * 環境変数`OPENAI_API_KEY`にOpenAIのAPIキーを設定して実行すること
-# OSXの場合、事前に `brew install libmagic` で `libmagic` をインストールする必要あり
+* OSXの場合、事前に `brew install libmagic` で `libmagic` をインストールしてください
 
 ## ファイルの説明
 
