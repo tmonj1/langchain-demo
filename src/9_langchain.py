@@ -76,9 +76,15 @@ class ChromaApp:
             justify='right')
         self.entry.pack(side='left', fill='x', expand=True)
 
+        # キーイベントのバインド
+        self.entry.bind("<Up>", self.increment_entry)
+        self.entry.bind("<Down>", self.decrement_entry)
+        self.entry.bind("<Return>", lambda event: self.search_document())  # Enterキーのバインド
+        self.entry.bind("<KeyRelease>", lambda event: self.search_document())  # キーリリースイベントのバインド
+
         # 検索ボタン
-        self.search_button = tk.Button(frame_number_entry, text="Go", command=self.search_document)
-        self.search_button.pack(side='left')
+        #self.search_button = tk.Button(frame_number_entry, text="Go", command=self.search_document)
+        #self.search_button.pack(side='left')
         
         # 区切り線
         separator = ttk.Separator(frame, orient="horizontal")
@@ -142,11 +148,44 @@ class ChromaApp:
         # テキストボックスにスクロールバーを設定
         self.result_text.config(yscrollcommand=self.scrollbar.set)
 
-    def validate_entry(self, new_value):
-        if new_value.isdigit() or new_value == "":
+        self.entry.insert(0, "0")
+        self.search_document()
+
+    def validate_entry(self, new_value: str | int):
+        # 値更新時、いったん空文字列になる場合があるのでTrueを返す
+        if new_value == "":
+            return True
+
+        if isinstance(new_value, str):
+            if new_value.isdigit():
+                n = int(new_value)
+            else:
+                return False
+        else:
+            n = new_value
+
+        if n >= 0 and n < len(doc_ids):
             return True
         else:
             return False
+
+    def increment_entry(self, event):
+        current_value = self.entry.get()
+        if current_value.isdigit():
+            new_value = int(current_value) + 1
+            if self.validate_entry(new_value):
+                self.entry.delete(0, tk.END)
+                self.entry.insert(0, str(new_value))
+                self.search_document()
+
+    def decrement_entry(self, event):
+        current_value = self.entry.get()
+        if current_value.isdigit():
+            new_value = int(current_value) - 1
+            if self.validate_entry(new_value):
+                self.entry.delete(0, tk.END)
+                self.entry.insert(0, str(new_value))
+                self.search_document()
 
     def update_readonly_entry(self, entry: tk.Entry, entry_var: tk.StringVar, value):
         entry.config(state="normal")  # 一時的に書き込み可能にする
@@ -158,6 +197,10 @@ class ChromaApp:
 
     def search_document(self):
         try:
+            # 空文字列のときは何もしない
+            if not self.entry.get():
+                return
+
             doc_number = int(self.entry.get())
             if 0 <= doc_number < len(doc_ids):
                 text = data['documents'][doc_number]
@@ -196,7 +239,7 @@ class ChromaApp:
         # 検索結果テキストの更新
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, result_text)
-    
+
 # Main
 if __name__ == "__main__":
     root = tk.Tk()
