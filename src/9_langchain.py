@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 
@@ -8,7 +8,7 @@ from langchain_chroma import Chroma
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # データベースの保存先
-db_path = os.path.join(script_dir, "../db/chroma_db")
+db_path = os.path.normpath(os.path.join(script_dir, "../db/chroma_db"))
 
 # OpenAIのEmbeddingsモデルの生成
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
@@ -51,7 +51,11 @@ class ChromaApp:
         frame.pack(fill="both", expand=True)
 
         # データベースファイル名の表示
-        self.db_label = tk.Label(frame, text=f"Database File: {os.path.basename(db_path)}")
+        self.db_label = tk.Label(frame, text=f"Database File: {db_path}")
+        self.db_label.pack(anchor='w')
+
+        # コレクション名の表示
+        self.db_label = tk.Label(frame, text=f"Collection: {chroma_db._collection_name}")
         self.db_label.pack(anchor='w')
 
         # データの総件数の表示
@@ -73,9 +77,42 @@ class ChromaApp:
         self.entry.pack(side='left', fill='x', expand=True)
 
         # 検索ボタン
-        self.search_button = tk.Button(frame, text="Search", command=self.search_document)
-        self.search_button.pack(side='top', anchor='w')
+        self.search_button = tk.Button(frame_number_entry, text="Go", command=self.search_document)
+        self.search_button.pack(side='left')
         
+        # 区切り線
+        separator = ttk.Separator(frame, orient="horizontal")
+        separator.pack(fill="x", padx=10, pady=10)
+
+        # ドキュメントIDの表示
+        frame_doc_id = tk.Frame(frame)
+        frame_doc_id.pack(anchor='w', fill='x')
+        self.doc_id_label = tk.Label(frame_doc_id, text="Document ID: ")
+        self.doc_id_label.pack(side='left')
+        self.doc_id = tk.StringVar(value="-")
+        self.doc_id_entry = tk.Entry(
+            frame_doc_id,
+            textvariable=self.doc_id,
+            state="readonly",
+            width=20,
+            justify='left')
+        self.doc_id_entry.pack(side='left', fill='x', expand=True)
+
+        # 埋め込みの表示
+        frame_embedding = tk.Frame(frame)
+        frame_embedding.pack(anchor='w', fill='x')
+        self.embedding_dimension_var = tk.StringVar(value="Embbeding (Array)")
+        self.embedding_label = tk.Label(frame_embedding, textvariable=self.embedding_dimension_var)
+        self.embedding_label.pack(side='left')
+        self.embedding = tk.StringVar(value="-")
+        self.embedding_entry = tk.Entry(
+            frame_embedding,
+            textvariable=self.embedding,
+            state="readonly",
+            width=20,
+            justify='left')
+        self.embedding_entry.pack(side='left', fill='x', expand=True)
+
         # テキスト長の表示
         frame_result_length = tk.Frame(frame)
         frame_result_length.pack(anchor='w')
@@ -87,7 +124,7 @@ class ChromaApp:
             textvariable=self.result_length,
             state="readonly",
             width=10,
-            justify='right')
+            justify='left')
         self.result_length_entry.pack(side='left', fill='x', expand=True)
 
         # 結果表示用のテキストボックス
@@ -116,14 +153,17 @@ class ChromaApp:
         entry_var.set(value)
         entry.config(state="readonly")  # 再び読み取り専用にする
 
+    def update_label_var(self, label_var: tk.StringVar, value):
+        label_var.set(value)
+
     def search_document(self):
         try:
             doc_number = int(self.entry.get())
             if 0 <= doc_number < len(doc_ids):
-                doc_id = doc_ids[doc_number]
                 text = data['documents'][doc_number]
                 embedding = data['embeddings'][doc_number]
                 result_text = text
+                result_embedding_dimension = len(embedding)
                 result_embedding = embedding[:10]
             else:
                 result = "Document not found."
@@ -132,10 +172,28 @@ class ChromaApp:
         except Exception as e:
             result = f"Error: {str(e)}"
         
+        # ドキュメントIDの更新
+        self.update_readonly_entry(
+            self.doc_id_entry,
+            self.doc_id,
+            f"{doc_ids[doc_number]}")
+
+        # 埋め込みの更新
+        self.update_label_var(
+            self.embedding_dimension_var,
+            f"Embedding ({result_embedding_dimension})")
+        self.update_readonly_entry(
+            self.embedding_entry,
+            self.embedding,
+            f"{", ".join(map(str, result_embedding))}")
+
+        # 検索結果テキストのテキスト長の更新
         self.update_readonly_entry(
             self.result_length_entry,
             self.result_length,
             f"{len(result_text)}")
+        
+        # 検索結果テキストの更新
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, result_text)
     
