@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 
@@ -33,9 +33,19 @@ class ChromaApp:
 
     def initialLayout(self):
         root = self.root
+        self.db_path = db_path
         
         # ウィンドウのタイトルを設定
         root.title("Chroma Database Viewer")
+
+        # メニューバーの作成
+        menubar = tk.Menu(root)
+        root.config(menu=menubar)
+
+        # Fileメニューの作成
+        file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Open...", command=self.open_chroma_database)
 
         # スクリーンサイズを取得
         screen_width = root.winfo_screenwidth()
@@ -55,8 +65,8 @@ class ChromaApp:
         self.db_label.pack(anchor='w')
 
         # コレクション名の表示
-        self.db_label = tk.Label(frame, text=f"Collection: {chroma_db._collection_name}")
-        self.db_label.pack(anchor='w')
+        self.db_collection_label = tk.Label(frame, text=f"Collection: {chroma_db._collection_name}")
+        self.db_collection_label.pack(anchor='w')
 
         # データの総件数の表示
         self.count_label = tk.Label(frame, text=f"Total Documents: {len(doc_ids)}")
@@ -148,6 +158,26 @@ class ChromaApp:
         if len(doc_ids) > 0:
             self.entry.insert(0, "0")
             self.search_document()
+
+    def open_chroma_database(self):
+        directory_path = filedialog.askdirectory()
+        if directory_path:
+            self.db_path = directory_path
+            self.db_label.config(text=f"Database File: {self.db_path}")
+            # Chromaデータベースのロード
+            self.load_chroma_db()
+
+    def load_chroma_db(self):
+        global chroma_db, data, doc_ids
+        chroma_db = Chroma(
+            collection_name="default",
+            embedding_function=embeddings,
+            persist_directory=self.db_path)
+        data = chroma_db.get(
+            include=["metadatas", "embeddings", "documents"])
+        doc_ids = data["ids"]
+        self.count_label.config(text=f"Total Documents: {len(doc_ids)}")
+        self.search_document()
 
     def validate_entry(self, new_value: str | int):
         # 値更新時、いったん空文字列になる場合があるのでTrueを返す
