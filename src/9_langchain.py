@@ -82,10 +82,6 @@ class ChromaApp:
         self.entry.bind("<Return>", lambda event: self.search_document())  # Enterキーのバインド
         self.entry.bind("<KeyRelease>", lambda event: self.search_document())  # キーリリースイベントのバインド
 
-        # 検索ボタン
-        #self.search_button = tk.Button(frame_number_entry, text="Go", command=self.search_document)
-        #self.search_button.pack(side='left')
-        
         # 区切り線
         separator = ttk.Separator(frame, orient="horizontal")
         separator.pack(fill="x", padx=10, pady=10)
@@ -95,10 +91,10 @@ class ChromaApp:
         frame_doc_id.pack(anchor='w', fill='x')
         self.doc_id_label = tk.Label(frame_doc_id, text="Document ID: ")
         self.doc_id_label.pack(side='left')
-        self.doc_id = tk.StringVar(value="-")
+        self.doc_id_var = tk.StringVar(value="-")
         self.doc_id_entry = tk.Entry(
             frame_doc_id,
-            textvariable=self.doc_id,
+            textvariable=self.doc_id_var,
             state="readonly",
             width=20,
             justify='left')
@@ -110,10 +106,10 @@ class ChromaApp:
         self.embedding_dimension_var = tk.StringVar(value="Embbeding (Array)")
         self.embedding_label = tk.Label(frame_embedding, textvariable=self.embedding_dimension_var)
         self.embedding_label.pack(side='left')
-        self.embedding = tk.StringVar(value="-")
+        self.embedding_var = tk.StringVar(value="-")
         self.embedding_entry = tk.Entry(
             frame_embedding,
-            textvariable=self.embedding,
+            textvariable=self.embedding_var,
             state="readonly",
             width=20,
             justify='left')
@@ -124,10 +120,10 @@ class ChromaApp:
         frame_result_length.pack(anchor='w')
         self.result_length_label = tk.Label(frame_result_length, text="Result Length:")
         self.result_length_label.pack(side='left')
-        self.result_length = tk.StringVar(value="0")
+        self.result_length_var = tk.StringVar(value="0")
         self.result_length_entry = tk.Entry(
             frame_result_length,
-            textvariable=self.result_length,
+            textvariable=self.result_length_var,
             state="readonly",
             width=10,
             justify='left')
@@ -218,7 +214,7 @@ class ChromaApp:
         # ドキュメントIDの更新
         self.update_readonly_entry(
             self.doc_id_entry,
-            self.doc_id,
+            self.doc_id_var,
             f"{doc_ids[doc_number]}")
 
         # 埋め込みの更新
@@ -227,13 +223,13 @@ class ChromaApp:
             f"Embedding ({result_embedding_dimension})")
         self.update_readonly_entry(
             self.embedding_entry,
-            self.embedding,
+            self.embedding_var,
             f"{", ".join(map(str, result_embedding))}")
 
         # 検索結果テキストのテキスト長の更新
         self.update_readonly_entry(
             self.result_length_entry,
-            self.result_length,
+            self.result_length_var,
             f"{len(result_text)}")
         
         # 検索結果テキストの更新
