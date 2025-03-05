@@ -8,7 +8,7 @@ from langchain_chroma import Chroma
 def file_filter(file_path: str) -> bool:
     return file_path.endswith(".mdx")
 
-# スクリプトがあるディレクトリの絶対パスを取得
+# 本ファイルがあるディレクトリの絶対パスを取得
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # スクリプトのあるディレクトリを基準に相対パスを作成
@@ -41,6 +41,10 @@ if os.path.exists(db_path):
     print("Old Chroma database removed.")
 
 # Chromaデータベースの作成と保存
-chroma_db = Chroma(embedding_function=embeddings, persist_directory=db_path)
+chroma_db = Chroma(
+    collection_name="default",
+    embedding_function=embeddings,
+    persist_directory=db_path)
 chroma_db.add_documents(chunked_docs)
+
 print(f"Chroma database created and saved to '{db_path}'.")
