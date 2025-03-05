@@ -144,8 +144,10 @@ class ChromaApp:
         # テキストボックスにスクロールバーを設定
         self.result_text.config(yscrollcommand=self.scrollbar.set)
 
-        self.entry.insert(0, "0")
-        self.search_document()
+        # データが存在する場合は最初のドキュメントを表示
+        if len(doc_ids) > 0:
+            self.entry.insert(0, "0")
+            self.search_document()
 
     def validate_entry(self, new_value: str | int):
         # 値更新時、いったん空文字列になる場合があるのでTrueを返す
