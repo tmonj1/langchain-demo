@@ -21,4 +21,7 @@ LangChainの学習に作ったサンプルプログラムです。
 7_langchain.py | ChromaDBのデータベースのロード (Chroma, Loader)
 8_langchain.py | Simple RAG (LCEL) ※ 6を実行してChromaのデータベースを作成しておくこと
 9_langchain.py | ChromaDB Viewer (Chroma)
+10_langchain.py | ChromaDB similarity search (Chroma) ※ 6を実行してデータベースを作成しておくこと
+
+
 
